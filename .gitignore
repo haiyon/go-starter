@@ -1,0 +1,11 @@
+.idea/
+.vscode/
+runtime/
+bin/
+.DS_Store
+logs/*
+internal/generated/
+!internal/generated/generate.go
+**/configs/*
+!**/configs/config.sample.yaml
+!**/configs/casbin.conf
