@@ -3,12 +3,12 @@ package http
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"haiyon/go-starter/internal/controllers"
 	"haiyon/go-starter/internal/services"
 	"haiyon/go-starter/internal/usage/middlewares"
 	"haiyon/go-starter/pkg/conf"
 	"haiyon/go-starter/pkg/log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +38,7 @@ func New(cfg *conf.Config) error {
 	innerRest(engine)
 
 	// register graphql router
-	innerGraphql(engine)
+	innerGraphql(engine, cfg.RunMode)
 
 	srv := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	log.Infof(context.Background(), "Starting Server %s\n", srv)

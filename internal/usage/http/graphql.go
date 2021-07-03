@@ -1,9 +1,10 @@
 package http
 
 import (
-	"net/http"
 	generated "haiyon/go-starter/internal/generated/graphql"
 	"haiyon/go-starter/internal/resolver"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -70,9 +71,11 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func innerGraphql(e *gin.Engine) {
+func innerGraphql(e *gin.Engine, mode string) {
 	// GraphQL
 	g := e.Group("/graphql")
 	g.POST("", graphqlHandler())
-	g.GET("/playground", playgroundHandler())
+	if !strings.Contains("release", mode) {
+		g.GET("", playgroundHandler())
+	}
 }
