@@ -1,0 +1,14 @@
+[Unit]
+Description=Go Starter Service
+After=network.target
+
+[Service]
+User=www-data
+SyslogIdentifier=go-starter
+ExecReload=/bin/kill -s -HUP $MAINPID
+ExecStart=/data/go-starter/go-starter -conf /data/go-starter/config.yaml
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

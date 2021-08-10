@@ -2,10 +2,18 @@
 .vscode/
 runtime/
 bin/
+out/
 .DS_Store
 logs/*
-internal/generated/
+
+# generated file
+internal/schema/graphql/generated.gql
+!internal/generated/templates
+!internal/generated/entc.go
 !internal/generated/generate.go
-**/configs/*
+internal/generated/
+
+# config
 !**/configs/config.sample.yaml
 !**/configs/casbin.conf
+**/configs/*

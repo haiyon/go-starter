@@ -3,37 +3,33 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"haiyon/go-starter/internal/generated/ent"
-	"haiyon/go-starter/pkg/conf"
-	"haiyon/go-starter/pkg/database/orm"
+	"go-starter/common/conf"
+	"go-starter/internal/data"
+	"go-starter/internal/generated/ent"
 )
 
 // Repository .
 type Repository struct {
-	client *ent.Client
-	db     *sql.DB
+	Client *ent.Client
+	DB     *sql.DB
 }
 
 // New new a instance
-func New(cfg *conf.Config) (r *Repository) {
-	c, d := orm.New(&cfg.ORM)
-	r = &Repository{
-		client: c,
-		db:     d,
+func New(cfg *conf.Config) (repo *Repository) {
+	nd, _ := data.New(&cfg.DB)
+	return &Repository{
+		Client: nd.Client,
+		DB:     nd.DB,
 	}
-	r.initORM()
-	return
 }
 
-func (r *Repository) initORM() {}
-
 // Close close the resource.
-func (r *Repository) Close() error {
-	return r.client.Close()
+func (repo *Repository) Close() error {
+	return repo.Client.Close()
 }
 
 // Ping ping
-func (r *Repository) Ping(ctx context.Context) (err error) {
-	err = r.db.PingContext(ctx)
+func (repo *Repository) Ping(ctx context.Context) (err error) {
+	err = repo.DB.PingContext(ctx)
 	return
 }
