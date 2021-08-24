@@ -3,11 +3,13 @@ Description=Go Starter Service
 After=network.target
 
 [Service]
+ExecStartPre=/bin/sleep 5
 User=www-data
 SyslogIdentifier=go-starter
 ExecReload=/bin/kill -s -HUP $MAINPID
 ExecStart=/data/go-starter/go-starter -conf /data/go-starter/config.yaml
-ExecStop=/bin/kill -s QUIT $MAINPID
+ExecStop=/bin/sleep 5; /bin/kill -s QUIT $MAINPID
+Restart=always
 PrivateTmp=true
 
 [Install]
