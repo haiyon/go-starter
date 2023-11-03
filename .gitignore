@@ -17,3 +17,5 @@ internal/generated/
 !**/configs/config.sample.yaml
 !**/configs/casbin.conf
 **/configs/*
+
+!.gitkeep
