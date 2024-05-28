@@ -1,30 +1,39 @@
 package controller
 
 import (
-	"go-starter/common/xhttp"
-	"go-starter/internal/dto"
+	"go-starter/internal/schema/structs"
+	"go-starter/pkg/resp"
+	"go-starter/pkg/validator"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Hello 用户登录
+// Hello is a handler for the "Hello" endpoint.
+// @Produce json
+// @Success 200 {object} resp.Exception "ok"
+// @Failure 400 {object} resp.Exception "bad request"
+// @Router /sample/hello [get]
 func (ctrl *Controller) Hello(ctx *gin.Context) {
 	var (
 		err  error
-		body dto.SampleBody
+		body structs.Sample
 	)
 
 	if err = ctx.ShouldBind(&body); err != nil {
-		exception := &xhttp.ResponseException{
+		exception := &resp.Exception{
 			Status:  http.StatusBadRequest,
 			Message: err.Error(),
 		}
-		xhttp.Fail(ctx, exception)
+		resp.Fail(ctx, exception)
 		return
 	}
 
-	result, _ := ctrl.s.Hello(ctx, body)
+	result, err := ctrl.Service.Hello(ctx, body)
+	if validator.IsNotNil(err) {
+		resp.Fail(ctx, result)
+		return
+	}
 
-	xhttp.Success(ctx, result)
+	resp.Success(ctx, result)
 }

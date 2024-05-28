@@ -1,9 +1,10 @@
 package server
 
 import (
-	generated "go-starter/internal/generated/graphql"
-	"go-starter/internal/resolver"
+	"go-starter/internal/graphql/generated"
+	graph "go-starter/internal/graphql/resolvers"
 	"net/http"
+
 	"strings"
 	"time"
 
@@ -17,9 +18,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// newGraphQLServer 创建 GraphQL 服务
-func newGraphQLServer(es graphql.ExecutableSchema) (srv *handler.Server) {
-	srv = handler.New(es)
+// newGraphQLServer creates a GraphQL server.
+func newGraphQLServer(es graphql.ExecutableSchema) *handler.Server {
+	srv := handler.New(es)
 	srv.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -43,14 +44,14 @@ func newGraphQLServer(es graphql.ExecutableSchema) (srv *handler.Server) {
 		Cache: lru.New(100),
 	})
 
-	return
+	return srv
 }
 
-// Defining the Graphql handler
+// graphqlHandler defines the GraphQL handler.
 func graphqlHandler() gin.HandlerFunc {
 
 	config := generated.Config{
-		Resolvers: &resolver.Resolver{
+		Resolvers: &graph.Resolver{
 			Svc: svc,
 		},
 	}
@@ -62,7 +63,7 @@ func graphqlHandler() gin.HandlerFunc {
 	}
 }
 
-// Defining the Playground handler
+// playgroundHandler defines the Playground handler.
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL playground", "/graphql")
 
@@ -71,7 +72,8 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func innerGraphql(e *gin.Engine, mode string) {
+// registerGraphqlRouter registers the GraphQL router.
+func registerGraphqlRouter(e *gin.Engine, mode string) {
 	// GraphQL
 	g := e.Group("/graphql")
 	g.POST("", graphqlHandler())

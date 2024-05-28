@@ -1,99 +1,86 @@
-/*
-Package main
-Swagger 文档规则请参考：https://github.com/swaggo/swag#declarative-comments-format
-使用方式：
-	go get -u github.com/swaggo/swag/cmd/swag
-	swag init --generalInfo ./main.go --output ./swagger
-	make swag
-*/
 package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"go-starter/common/log"
+	"go-starter/internal/config"
 	"go-starter/internal/server"
+	"go-starter/pkg/log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"go-starter/common/conf"
-
-	_ "go-starter/swagger"
+	_ "go-starter/docs"
 )
 
-// Version 版本号，可以通过编译的方式指定版本号：go build -ldflags "-X main.Version=x.x.x"
+// Version Version number, can be specified during compilation: go build -ldflags "-X main.Version=x.x.x"
 var Version = "dev+"
 
-// @title Go Starter
+// @title go-starter
 // @version 0.1.0
-// @description Go Starter Project Layout
-// @termsOfService https://domain.com
+// @description a modern content management system
+// @termsOfService https://go-starter.com
 
 func main() {
 	log.SetVersion(Version)
 
-	// loading config
-	if err := conf.Init(); err != nil {
-		log.Fatalf(context.Background(), "❌ conf init error: %+v", err)
+	// Loading config
+	if err := config.Init(); err != nil {
+		log.Fatalf(context.Background(), "❌ Config initialization error: %+v", err)
 	}
-	// init logger
-	loggerClean, err := log.Init(conf.G.Logger)
+
+	// Initialize logger
+	loggerClean, err := log.Init(config.G.Logger)
 	if err != nil {
-		log.Fatalf(context.Background(), "❌ logger init error: %+v", err)
+		log.Fatalf(context.Background(), "❌ Logger initialization error: %+v", err)
 	}
 	defer loggerClean()
 
-	// print application name
-	log.Infof(context.Background(), "%s", conf.G.AppName)
+	// Print application name
+	log.Infof(context.Background(), "%s", config.G.AppName)
 
-	// new a serve
-	serve, svc := server.New(conf.G)
+	// Create server
+	handler, cleanup, err := server.New(config.G)
 	if err != nil {
-		log.Fatalf(context.Background(), "❌ Failed to run server: %+v", err)
+		log.Fatalf(context.Background(), "❌ Failed to start server: %+v", err)
 	}
 
-	// Start http server
-	addr := fmt.Sprintf("%s:%d", conf.G.Host, conf.G.Port)
+	// Cleanup
+	defer cleanup()
+
+	// Start HTTP server
+	addr := fmt.Sprintf("%s:%d", config.G.Host, config.G.Port)
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: serve,
+		Handler: handler,
 	}
 	log.Infof(context.Background(), "🚀 Listening and serving HTTP on: %s", addr)
 
 	go func() {
-		// service connections
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		// Service connections
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf(context.Background(), "listen: %s", err)
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal)
-	// // kill (no param) default send syscanll.SIGTERM
-	// // kill -2 is syscall.SIGINT
-	// // kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Infof(context.Background(), "⌛️ Shutdown Server ...")
+	log.Infof(context.Background(), "⌛️ Shutting down server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf(context.Background(), "❌ Server Shutdown:", err)
+		log.Fatalf(context.Background(), "❌ Server shutdown:", err)
 	}
-	// catching ctx.Done(). timeout of 5 seconds.
+	// Catching ctx.Done(). Timeout of 5 seconds.
 	select {
 	case <-ctx.Done():
-		// log.Infof(context.Background(), "⌛️ timeout of 3 seconds.")
-		log.Printf(context.Background(), "💡 Database Close...")
-		if err := svc.DBClose(); err != nil {
-			log.Printf(context.Background(), "❌ Database Close error:", err)
-		}
-
+		log.Infof(context.Background(), "⌛️ Timeout of 3 seconds.")
 	}
 	log.Infof(context.Background(), "👋 Server exiting")
 }

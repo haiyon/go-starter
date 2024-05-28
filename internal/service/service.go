@@ -1,38 +1,20 @@
 package service
 
 import (
-	"context"
-	"go-starter/common/conf"
-	"go-starter/internal/generated/ent"
-	repo "go-starter/internal/repository"
+	"go-starter/internal/config"
+	"go-starter/internal/data"
 )
 
-// Service service def.
+// Service represents a service definition.
 type Service struct {
-	cfg  *conf.Config
-	repo *repo.Repository
+	cfg    *config.Config
+	sample data.ISample
 }
 
-// New create a Service and return
-func New(cfg *conf.Config) (s *Service) {
+// New creates a Service instance and returns it.
+func New(cfg *config.Config, d *data.Data) *Service {
 	return &Service{
-		cfg:  cfg,
-		repo: repo.New(cfg),
+		cfg:    cfg,
+		sample: data.NewSample(d),
 	}
-}
-
-// DBClose close the resource.
-func (svc *Service) DBClose() error {
-	return svc.GetClient().Close()
-}
-
-// GetClient get entgo client
-func (svc Service) GetClient() *ent.Client {
-	return svc.repo.Client
-}
-
-// Ping check server
-func (svc *Service) Ping(ctx context.Context) (err error) {
-	err = svc.repo.Ping(ctx)
-	return
 }

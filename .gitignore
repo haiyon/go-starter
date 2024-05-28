@@ -6,16 +6,6 @@ out/
 .DS_Store
 logs/*
 
-# generated file
-internal/schema/graphql/generated.gql
-!internal/generated/templates
-!internal/generated/entc.go
-!internal/generated/generate.go
-internal/generated/
-
 # config
-!**/configs/config.sample.yaml
-!**/configs/casbin.conf
-**/configs/*
-
-!.gitkeep
+!config.example.yml
+config.yml
