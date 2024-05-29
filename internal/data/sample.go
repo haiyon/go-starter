@@ -17,24 +17,24 @@ type ISample interface {
 
 // sampleRepo implements the ISample interface.
 type sampleRepo struct {
-	ec    *ent.Client
-	rc    redis.Cmdable
-	cache *Cache[ent.Sample]
+	ec *ent.Client
+	rc redis.Cmdable
+	c  *Cache[ent.Sample]
 }
 
 // NewSample creates a new sample repository.
 func NewSample(d *Data) ISample {
 	return &sampleRepo{
-		ec:    d.ec,
-		rc:    d.rc,
-		cache: NewCache[ent.Sample](d.rc, cacheKey("sample")),
+		ec: d.ec,
+		rc: d.rc,
+		c:  NewCache[ent.Sample](d.rc, cacheKey("sample")),
 	}
 }
 
 func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, error) {
 	// try to fetch from cache.
 	cf := p.Name
-	row, err := r.cache.get(ctx, cf)
+	row, err := r.c.get(ctx, cf)
 	if validator.IsNotNil(err) {
 		// fetch from db when cache is empty.
 		// use internal get method.
@@ -46,7 +46,7 @@ func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, 
 			return nil, err
 		}
 		// set the cache.
-		r.cache.set(ctx, row, cf)
+		r.c.set(ctx, row, cf)
 	}
 	return row, err
 }

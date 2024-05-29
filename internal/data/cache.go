@@ -31,7 +31,7 @@ type Cache[T any] struct {
 // cacheKey defines the cache key for the user service
 // @param key - format: prefix:%s, %s = table name or custom
 func cacheKey(key string) string {
-	return fmt.Sprintf("%s_%s:%s", "gs", "sample", key)
+	return fmt.Sprintf("%s_%s", "gs", key)
 }
 
 // NewCache creates a new Cache instance
