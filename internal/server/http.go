@@ -2,7 +2,7 @@ package server
 
 import (
 	"go-starter/internal/config"
-	"go-starter/internal/controller"
+	"go-starter/internal/handler"
 	"go-starter/internal/server/middleware"
 	"go-starter/internal/service"
 	"go-starter/pkg/ecode"
@@ -14,15 +14,15 @@ import (
 
 var (
 	svc     *service.Service
-	ctrl    *controller.Controller
+	h       *handler.Handler
 	cleanup func()
 	err     error
 )
 
 // New creates an HTTP server.
 func New(conf *config.Config) (*gin.Engine, func(), error) {
-	// Initialize database / services / controllers
-	ctrl, svc, cleanup, err = initialize(conf)
+	// Initialize database / services / handlers
+	h, svc, cleanup, err = initialize(conf)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -37,7 +37,7 @@ func New(conf *config.Config) (*gin.Engine, func(), error) {
 	engine.Use(middleware.ConsumeUser())
 
 	// Register REST router
-	registerRestRouter(engine, ctrl)
+	registerRestRouter(engine, h)
 
 	// Register GraphQL router
 	registerGraphqlRouter(engine, conf.RunMode)

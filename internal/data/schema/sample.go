@@ -1,7 +1,7 @@
-package model
+package schema
 
 import (
-	"go-starter/internal/schema/model/mixin"
+	"go-starter/internal/data/schema/mixin"
 	"strings"
 
 	"entgo.io/contrib/entgql"

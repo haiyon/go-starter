@@ -1,9 +1,9 @@
 package resp
 
 import (
+	"net/http"
 	"go-starter/pkg/ecode"
 	"go-starter/pkg/types"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )

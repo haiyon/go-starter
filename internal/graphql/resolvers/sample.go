@@ -7,9 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"go-starter/internal/data/structs"
 	"go-starter/internal/graphql/generated"
 	"go-starter/internal/graphql/types"
-	"go-starter/internal/schema/structs"
 
 	"github.com/jinzhu/copier"
 )

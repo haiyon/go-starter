@@ -20,8 +20,8 @@ import (
 
 // newGraphQLServer creates a GraphQL server.
 func newGraphQLServer(es graphql.ExecutableSchema) *handler.Server {
-	srv := handler.New(es)
-	srv.AddTransport(&transport.Websocket{
+	s := handler.New(es)
+	s.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
@@ -32,19 +32,19 @@ func newGraphQLServer(es graphql.ExecutableSchema) *handler.Server {
 		KeepAlivePingInterval: 15 * time.Second,
 	})
 
-	srv.AddTransport(transport.Options{})
-	srv.AddTransport(transport.GET{})
-	srv.AddTransport(transport.POST{})
-	srv.AddTransport(transport.MultipartForm{})
+	s.AddTransport(transport.Options{})
+	s.AddTransport(transport.GET{})
+	s.AddTransport(transport.POST{})
+	s.AddTransport(transport.MultipartForm{})
 
-	srv.SetQueryCache(lru.New(1000))
+	s.SetQueryCache(lru.New(1000))
 
-	srv.Use(extension.Introspection{})
-	srv.Use(extension.AutomaticPersistedQuery{
+	s.Use(extension.Introspection{})
+	s.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New(100),
 	})
 
-	return srv
+	return s
 }
 
 // graphqlHandler defines the GraphQL handler.
@@ -56,10 +56,10 @@ func graphqlHandler() gin.HandlerFunc {
 		},
 	}
 
-	srv := newGraphQLServer(generated.NewExecutableSchema(config))
+	s := newGraphQLServer(generated.NewExecutableSchema(config))
 
 	return func(c *gin.Context) {
-		srv.ServeHTTP(c.Writer, c.Request)
+		s.ServeHTTP(c.Writer, c.Request)
 	}
 }
 

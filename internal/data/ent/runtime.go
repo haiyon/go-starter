@@ -4,7 +4,7 @@ package ent
 
 import (
 	"go-starter/internal/data/ent/sample"
-	"go-starter/internal/schema/model"
+	"go-starter/internal/data/schema"
 	"time"
 )
 
@@ -12,12 +12,12 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	sampleMixin := model.Sample{}.Mixin()
+	sampleMixin := schema.Sample{}.Mixin()
 	sampleMixinFields0 := sampleMixin[0].Fields()
 	_ = sampleMixinFields0
 	sampleMixinFields3 := sampleMixin[3].Fields()
 	_ = sampleMixinFields3
-	sampleFields := model.Sample{}.Fields()
+	sampleFields := schema.Sample{}.Fields()
 	_ = sampleFields
 	// sampleDescCreatedAt is the schema descriptor for created_at field.
 	sampleDescCreatedAt := sampleMixinFields3[0].Descriptor()

@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"go-starter/internal/schema/structs"
+	"go-starter/internal/data/structs"
 	"go-starter/pkg/resp"
 	"go-starter/pkg/validator"
 )

@@ -1,10 +1,10 @@
-package controller
+package handler
 
 import (
-	"go-starter/internal/schema/structs"
+	"net/http"
+	"go-starter/internal/data/structs"
 	"go-starter/pkg/resp"
 	"go-starter/pkg/validator"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ import (
 // @Success 200 {object} resp.Exception "ok"
 // @Failure 400 {object} resp.Exception "bad request"
 // @Router /sample/hello [get]
-func (ctrl *Controller) Hello(ctx *gin.Context) {
+func (h *Handler) Hello(ctx *gin.Context) {
 	var (
 		err  error
 		body structs.Sample
@@ -29,7 +29,7 @@ func (ctrl *Controller) Hello(ctx *gin.Context) {
 		return
 	}
 
-	result, err := ctrl.Service.Hello(ctx, body)
+	result, err := h.svc.Hello(ctx, body)
 	if validator.IsNotNil(err) {
 		resp.Fail(ctx, result)
 		return

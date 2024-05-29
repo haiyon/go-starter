@@ -1,9 +1,9 @@
 package resp
 
 import (
+	"net/http"
 	"go-starter/pkg/ecode"
 	"go-starter/pkg/types"
-	"net/http"
 )
 
 // newResponse creates a new response.

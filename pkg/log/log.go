@@ -3,10 +3,10 @@ package log
 import (
 	"context"
 	"fmt"
-	"go-starter/internal/config"
 	"io"
 	"os"
 	"path/filepath"
+	"go-starter/internal/config"
 
 	"github.com/sirupsen/logrus"
 )

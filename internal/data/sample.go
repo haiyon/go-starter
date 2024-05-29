@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-starter/internal/data/ent"
 	"go-starter/internal/data/ent/sample"
-	"go-starter/internal/schema/structs"
+	"go-starter/internal/data/structs"
 	"go-starter/pkg/validator"
 
 	"github.com/redis/go-redis/v9"

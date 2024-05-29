@@ -1,6 +1,4 @@
-# Sample Project Layout
-
-> Base Project layout
+# Go Starter
 
 ## Start
 

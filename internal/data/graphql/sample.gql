@@ -7,6 +7,6 @@ type Sample{
   id: ID!,
   name: String!
   content: String!
-  created_at: DateTime
-  updated_at: DateTime
+  created_at: Time
+  updated_at: Time
 }

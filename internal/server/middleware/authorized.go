@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"net/http"
 	"go-starter/pkg/ecode"
 	"go-starter/pkg/resp"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
