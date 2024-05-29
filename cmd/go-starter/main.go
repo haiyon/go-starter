@@ -28,22 +28,23 @@ func main() {
 	log.SetVersion(Version)
 
 	// Loading config
-	if err := config.Init(); err != nil {
+	conf, err := config.Init()
+	if err != nil {
 		log.Fatalf(context.Background(), "❌ Config initialization error: %+v", err)
 	}
 
 	// Initialize logger
-	loggerClean, err := log.Init(config.G.Logger)
+	loggerClean, err := log.Init(conf.Logger)
 	if err != nil {
 		log.Fatalf(context.Background(), "❌ Logger initialization error: %+v", err)
 	}
 	defer loggerClean()
 
 	// Print application name
-	log.Infof(context.Background(), "%s", config.G.AppName)
+	log.Infof(context.Background(), "%s", conf.AppName)
 
 	// Create server
-	handler, cleanup, err := server.New(config.G)
+	handler, cleanup, err := server.New(conf)
 	if err != nil {
 		log.Fatalf(context.Background(), "❌ Failed to start server: %+v", err)
 	}
@@ -52,7 +53,7 @@ func main() {
 	defer cleanup()
 
 	// Start HTTP server
-	addr := fmt.Sprintf("%s:%d", config.G.Host, config.G.Port)
+	addr := fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: handler,

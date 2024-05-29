@@ -10,10 +10,7 @@ import (
 
 var (
 	c        *viper.Viper
-	err      error
 	confPath string
-	// G Global config. e.g: config.G.xxx
-	G = &Config{}
 )
 
 // Config is a struct representing the application's configuration.
@@ -39,15 +36,12 @@ func init() {
 }
 
 // Init initializes and loads the application configuration.
-func Init() error {
+func Init() (*Config, error) {
 	flag.Parse()
-
-	*G, err = load(confPath)
-
-	return err
+	return load(confPath)
 }
 
-func load(in string) (Config, error) {
+func load(in string) (*Config, error) {
 	c = viper.New()
 
 	// Add the directory of the executable
@@ -66,10 +60,6 @@ func load(in string) (Config, error) {
 
 	err = c.ReadInConfig()
 
-	return *get(), err
-}
-
-func get() *Config {
 	return &Config{
 		AppName:    c.GetString("app_name"),
 		RunMode:    c.GetString("run_mode"),
@@ -88,5 +78,5 @@ func get() *Config {
 		Facebook: *getFacebook(),
 		AWS:      *getAWS(),
 		Mailgun:  *getMailgun(),
-	}
+	}, err
 }

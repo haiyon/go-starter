@@ -1,5 +1,5 @@
 [Unit]
-Description=Go Starter Service
+Description=Go Starter
 After=network.target
 
 [Service]

@@ -1,9 +1,5 @@
 package middleware
 
-import "go-starter/internal/config"
-
-var signingKey = config.G.JWTSecret // nanoid(35)
-
 // // GenerateUserToken generates user access and refresh tokens.
 // func GenerateUserToken(user *ent.User, authToken *ent.AuthToken) (string, string) {
 // 	accessPayload := types.JSON{

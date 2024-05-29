@@ -35,10 +35,10 @@ func Contains(a []string, x string) bool {
 	return false
 }
 
-// GetDomain Get the run domain
-func GetDomain(domain string) string {
+// GetDomain returns the run domain based on the given domain and conf.
+func GetDomain(conf *config.Config, domain string) string {
 	if domain == "localhost" {
-		return fmt.Sprintf("%v://%v:%d", config.G.Protocol, config.G.Domain, config.G.Port)
+		return fmt.Sprintf("%v://%v:%d", conf.Protocol, conf.Domain, conf.Port)
 	}
-	return fmt.Sprintf("%v://%v", config.G.Protocol, config.G.Domain)
+	return fmt.Sprintf("%v://%v", conf.Protocol, conf.Domain)
 }

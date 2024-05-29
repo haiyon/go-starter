@@ -20,17 +20,18 @@ var (
 )
 
 // New creates an HTTP server.
-func New(cfg *config.Config) (*gin.Engine, func(), error) {
+func New(conf *config.Config) (*gin.Engine, func(), error) {
 	// Initialize database / services / controllers
-	ctrl, svc, cleanup, err = initialize(cfg)
+	ctrl, svc, cleanup, err = initialize(conf)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	gin.SetMode(cfg.RunMode)
+	gin.SetMode(conf.RunMode)
 	engine := gin.New()
 
 	// Middleware
+	middleware.Init(conf)
 	engine.Use(middleware.Logger())
 	engine.Use(middleware.CORSHandler())
 	engine.Use(middleware.ConsumeUser())
@@ -39,7 +40,7 @@ func New(cfg *config.Config) (*gin.Engine, func(), error) {
 	registerRestRouter(engine, ctrl)
 
 	// Register GraphQL router
-	registerGraphqlRouter(engine, cfg.RunMode)
+	registerGraphqlRouter(engine, conf.RunMode)
 
 	engine.NoRoute(notFound)
 	engine.NoMethod()
