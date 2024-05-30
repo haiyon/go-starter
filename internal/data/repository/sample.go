@@ -1,7 +1,9 @@
-package data
+package repository
 
 import (
 	"context"
+	"go-starter/internal/data"
+	"go-starter/internal/data/cache"
 	"go-starter/internal/data/ent"
 	"go-starter/internal/data/ent/sample"
 	"go-starter/internal/data/structs"
@@ -10,31 +12,32 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ISample represents the sample repository interface.
-type ISample interface {
+// Sample represents the sample repository interface.
+type Sample interface {
 	Hello(ctx context.Context, body structs.Sample) (*ent.Sample, error)
 }
 
-// sampleRepo implements the ISample interface.
+// sampleRepo implements the Sample interface.
 type sampleRepo struct {
 	ec *ent.Client
 	rc *redis.Client
-	c  *Cache[ent.Sample]
+	c  *cache.Cache[ent.Sample]
 }
 
 // NewSample creates a new sample repository.
-func NewSample(d *Data) ISample {
+func NewSample(d *data.Data) Sample {
+	ec := d.GetEntClient()
+	rc := d.GetRedis()
 	return &sampleRepo{
-		ec: d.ec,
-		rc: d.rc,
-		c:  NewCache[ent.Sample](d.rc, cacheKey("sample")),
+		ec: ec, rc: rc,
+		c: cache.NewCache[ent.Sample](rc, cache.Key("sample")),
 	}
 }
 
 func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, error) {
 	// try to fetch from cache.
 	cf := p.Name
-	row, err := r.c.get(ctx, cf)
+	row, err := r.c.Get(ctx, cf)
 	if validator.IsNotNil(err) {
 		// fetch from db when cache is empty.
 		// use internal get method.
@@ -46,7 +49,7 @@ func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, 
 			return nil, err
 		}
 		// set the cache.
-		r.c.set(ctx, row, cf)
+		r.c.Set(ctx, row, cf)
 	}
 	return row, err
 }

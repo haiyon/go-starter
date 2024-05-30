@@ -76,6 +76,11 @@ func newRedis(conf *config.Redis) *redis.Client {
 	return rc
 }
 
+// GetRedis returns the redis client
+func (d *Data) GetRedis() *redis.Client {
+	return d.rc
+}
+
 // newClient creates a new ent client.
 func newClient(conf *config.Database) (*ent.Client, *sql.DB) {
 	// Open database
@@ -109,6 +114,16 @@ func newClient(conf *config.Database) (*ent.Client, *sql.DB) {
 	}
 
 	return ec, db
+}
+
+// GetEntClient returns the ent client
+func (d *Data) GetEntClient() *ent.Client {
+	return d.ec
+}
+
+// GetDB returns the database
+func (d *Data) GetDB() *sql.DB {
+	return d.db
 }
 
 // Close .

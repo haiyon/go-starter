@@ -4,13 +4,14 @@ import (
 	"context"
 	"go-starter/internal/config"
 	"go-starter/internal/data"
+	"go-starter/internal/data/repository"
 )
 
 // Service represents a service definition.
 type Service struct {
 	conf   *config.Config
 	d      *data.Data
-	sample data.ISample
+	sample repository.Sample
 }
 
 // New creates a Service instance and returns it.
@@ -18,7 +19,7 @@ func New(conf *config.Config, d *data.Data) *Service {
 	return &Service{
 		conf:   conf,
 		d:      d,
-		sample: data.NewSample(d),
+		sample: repository.NewSample(d),
 	}
 }
 

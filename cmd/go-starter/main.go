@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
 	"go-starter/internal/config"
 	"go-starter/internal/server"
 	"go-starter/pkg/log"
+	"net/http"
+	"os"
+	"os/signal"
 	"syscall"
 	"time"
 
@@ -76,7 +76,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf(context.Background(), "❌ Server shutdown:", err)
+		log.Fatalf(context.Background(), "❌ Server shutdown: %+v", err)
 	}
 	// Catching ctx.Done(). Timeout of 5 seconds.
 	select {
