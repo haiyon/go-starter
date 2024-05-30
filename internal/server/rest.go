@@ -4,8 +4,8 @@ import (
 	"go-starter/internal/handler"
 	"go-starter/internal/server/middleware"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 
 	"github.com/gin-gonic/gin"
 )
