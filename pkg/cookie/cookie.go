@@ -1,9 +1,8 @@
 package cookie
 
 import (
+	"net/http"
 	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 // formatDomain formats the domain.
@@ -14,42 +13,86 @@ func formatDomain(domain string) string {
 	return domain
 }
 
-// SetCookie sets cookies.
-func SetCookie(ctx *gin.Context, accessToken, refreshToken, domain string) {
+// Set sets cookies.
+func Set(w http.ResponseWriter, accessToken, refreshToken, domain string) {
 	formattedDomain := formatDomain(domain)
-	ctx.SetCookie("access_token", accessToken, 60*60*24, "/", formattedDomain, true, true)
-	ctx.SetCookie("refresh_token", refreshToken, 60*60*24*30, "/", formattedDomain, true, true)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		MaxAge:   60 * 60 * 24,
+		Path:     "/",
+		Domain:   formattedDomain,
+		Secure:   true,
+		HttpOnly: true,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		MaxAge:   60 * 60 * 24 * 30,
+		Path:     "/",
+		Domain:   formattedDomain,
+		Secure:   true,
+		HttpOnly: true,
+	})
 }
 
-// SetRegisterCookie sets registration cookies.
-func SetRegisterCookie(ctx *gin.Context, registerToken, domain string) {
+// SetRegister sets registration cookies.
+func SetRegister(w http.ResponseWriter, registerToken, domain string) {
 	formattedDomain := formatDomain(domain)
-	ctx.SetCookie("register_token", registerToken, 60*60, "/", formattedDomain, true, true)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "register_token",
+		Value:    registerToken,
+		MaxAge:   60 * 60,
+		Path:     "/",
+		Domain:   formattedDomain,
+		Secure:   true,
+		HttpOnly: true,
+	})
 }
 
-// ClearCookie clears cookies.
-func ClearCookie(ctx *gin.Context) {
-	ctx.SetCookie("access_token", "", -1, "/", "", true, true)
-	ctx.SetCookie("refresh_token", "", -1, "/", "", true, true)
+// Clear clears cookies.
+func Clear(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "access_token",
+		MaxAge: -1,
+		Path:   "/",
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:   "refresh_token",
+		MaxAge: -1,
+		Path:   "/",
+	})
 }
 
-// ClearRegisterCookie clears registration cookies.
-func ClearRegisterCookie(ctx *gin.Context) {
-	ctx.SetCookie("register_token", "", -1, "/", "", true, true)
+// ClearRegister clears registration cookies.
+func ClearRegister(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:   "register_token",
+		MaxAge: -1,
+		Path:   "/",
+	})
 }
 
-// ClearAllCookie clears all cookies.
-func ClearAllCookie(ctx *gin.Context) {
-	ClearCookie(ctx)
-	ClearRegisterCookie(ctx)
+// ClearAll clears all cookies.
+func ClearAll(w http.ResponseWriter) {
+	Clear(w)
+	ClearRegister(w)
 }
 
-// GetCookie gets cookies.
-func GetCookie(ctx *gin.Context, key string) (string, error) {
-	return ctx.Cookie(key)
+// Get gets cookies.
+func Get(r *http.Request, key string) (string, error) {
+	cookie, err := r.Cookie(key)
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
 }
 
-// GetRegisterCookie gets registration cookies.
-func GetRegisterCookie(ctx *gin.Context, key string) (string, error) {
-	return ctx.Cookie(key)
+// GetRegister gets registration cookies.
+func GetRegister(r *http.Request, key string) (string, error) {
+	cookie, err := r.Cookie(key)
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
 }

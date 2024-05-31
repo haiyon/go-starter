@@ -26,12 +26,10 @@ type sampleRepo struct {
 
 // NewSample creates a new sample repository.
 func NewSample(d *data.Data) Sample {
-	ec := d.GetEntClient()
-	rc := d.GetRedis()
-	return &sampleRepo{
-		ec: ec, rc: rc,
-		c: cache.NewCache[ent.Sample](rc, cache.Key("sample")),
-	}
+	entClient := d.GetEntClient()
+	redisClient := d.GetRedis()
+	cacheInstance := cache.NewCache[ent.Sample](redisClient, cache.Key("sample"))
+	return &sampleRepo{ec: entClient, rc: redisClient, c: cacheInstance}
 }
 
 func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, error) {

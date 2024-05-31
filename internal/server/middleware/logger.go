@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"io"
 	"go-starter/pkg/log"
+	"io"
 	"time"
 
 	"github.com/gin-gonic/gin"

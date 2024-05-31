@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"net/http"
 	"go-starter/pkg/ecode"
 	"go-starter/pkg/resp"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func Authorized(ctx *gin.Context) {
 			Code:    ecode.Unauthorized,
 			Message: ecode.Text(ecode.Unauthorized),
 		}
-		resp.Fail(ctx, exception)
+		resp.Fail(ctx.Writer, exception)
 		return
 	}
 	ctx.Next()

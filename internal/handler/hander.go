@@ -24,5 +24,5 @@ func (h *Handler) Ping(ctx *gin.Context) {
 	if err := h.svc.Ping(ctx); err != nil {
 		log.Fatalf(context.Background(), "ping error: %+v", err)
 	}
-	resp.Success(ctx, nil)
+	resp.Success(ctx.Writer, nil)
 }

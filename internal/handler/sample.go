@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"net/http"
 	"go-starter/internal/data/structs"
 	"go-starter/pkg/resp"
 	"go-starter/pkg/validator"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,15 +25,15 @@ func (h *Handler) Hello(ctx *gin.Context) {
 			Status:  http.StatusBadRequest,
 			Message: err.Error(),
 		}
-		resp.Fail(ctx, exception)
+		resp.Fail(ctx.Writer, exception)
 		return
 	}
 
 	result, err := h.svc.Hello(ctx, body)
 	if validator.IsNotNil(err) {
-		resp.Fail(ctx, result)
+		resp.Fail(ctx.Writer, result)
 		return
 	}
 
-	resp.Success(ctx, result)
+	resp.Success(ctx.Writer, result)
 }

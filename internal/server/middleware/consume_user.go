@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"net/http"
 	"go-starter/pkg/ecode"
 	"go-starter/pkg/jwt"
 	"go-starter/pkg/resp"
+	"net/http"
 	"strings"
 	"time"
 
@@ -17,7 +17,7 @@ func refreshToken(oldToken string) (string, error) {
 }
 
 // isTokenExpiring 检查令牌是否即将过期
-func isTokenExpiring(tokenData map[string]interface{}) bool {
+func isTokenExpiring(tokenData map[string]any) bool {
 	exp, ok := tokenData["exp"].(int64)
 	if !ok {
 		return false
@@ -50,7 +50,7 @@ func ConsumeUser() gin.HandlerFunc {
 				Code:    ecode.AccessDenied,
 				Message: err.Error(),
 			}
-			resp.Fail(ctx, exception)
+			resp.Fail(ctx.Writer, exception)
 			return
 		}
 
