@@ -20,9 +20,9 @@ func New(svc *service.Service) *Handler {
 }
 
 // Ping health status
-func (h *Handler) Ping(ctx *gin.Context) {
-	if err := h.svc.Ping(ctx); err != nil {
+func (h *Handler) Ping(c *gin.Context) {
+	if err := h.svc.Ping(c); err != nil {
 		log.Fatalf(context.Background(), "ping error: %+v", err)
 	}
-	resp.Success(ctx.Writer, nil)
+	resp.Success(c.Writer, nil)
 }

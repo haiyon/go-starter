@@ -9,15 +9,16 @@ import (
 )
 
 // Authorized is a middleware for verifying the existence of a user.
-func Authorized(ctx *gin.Context) {
-	if _, exists := ctx.Get("uid"); !exists {
+func Authorized(c *gin.Context) {
+	if _, exists := c.Get("uid"); !exists {
 		exception := &resp.Exception{
 			Status:  http.StatusUnauthorized,
 			Code:    ecode.Unauthorized,
 			Message: ecode.Text(ecode.Unauthorized),
 		}
-		resp.Fail(ctx.Writer, exception)
+		resp.Fail(c.Writer, exception)
+		c.Abort()
 		return
 	}
-	ctx.Next()
+	c.Next()
 }

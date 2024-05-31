@@ -3,7 +3,6 @@ package server
 import (
 	"go-starter/internal/config"
 	"go-starter/internal/handler"
-	"go-starter/internal/helper"
 	"go-starter/internal/server/middleware"
 	"go-starter/internal/service"
 	"go-starter/pkg/ecode"
@@ -21,22 +20,16 @@ func newHTTP(conf *config.Config, h *handler.Handler, svc *service.Service) (*gi
 
 	// Middleware
 	middleware.Init(conf)
-	engine.Use(middleware.Logger())
-	engine.Use(middleware.CORSHandler())
-	engine.Use(middleware.ConsumeUser())
-
+	engine.Use(middleware.Logger)
+	engine.Use(middleware.CORS)
+	engine.Use(middleware.ConsumeUser)
+	engine.Use(middleware.BindConfig)
+	engine.Use(middleware.BindGinContext)
 	// Register REST
 	registerRest(engine, h, conf)
 
 	// Register GraphQL
 	registerGraphql(engine, svc, conf.RunMode)
-
-	// Register config to Context
-	engine.Use(func(c *gin.Context) {
-		c.Set("config", conf)
-		c.Request = c.Request.WithContext(helper.SetConfig(c.Request.Context(), conf))
-		c.Next()
-	})
 
 	engine.NoRoute(notFound)
 	engine.NoMethod()

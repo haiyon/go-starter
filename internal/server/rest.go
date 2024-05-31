@@ -3,8 +3,8 @@ package server
 import (
 	"go-starter/internal/config"
 	"go-starter/internal/handler"
+	"go-starter/internal/helper"
 	"go-starter/internal/server/middleware"
-	"go-starter/pkg/util"
 	"net/http"
 
 	"github.com/swaggo/files"
@@ -15,12 +15,12 @@ import (
 
 func registerRest(e *gin.Engine, h *handler.Handler, conf *config.Config) {
 	// root Jump when domain is configured and it is not localhost
-	e.GET("/", func(ctx *gin.Context) {
+	e.GET("/", func(c *gin.Context) {
 		if conf.Domain != "localhost" {
-			url := util.GetDomain(conf, conf.Domain)
-			ctx.Redirect(http.StatusMovedPermanently, url)
+			url := helper.GetHost(conf, conf.Domain)
+			c.Redirect(http.StatusMovedPermanently, url)
 		} else {
-			ctx.String(http.StatusOK, "It's working.")
+			c.String(http.StatusOK, "It's working.")
 		}
 	})
 

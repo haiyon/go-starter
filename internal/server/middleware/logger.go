@@ -18,25 +18,23 @@ type format struct {
 }
 
 // Logger is a middleware for logging requests.
-func Logger() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		l := &format{}
-		start := time.Now()
-		path := ctx.Request.URL.Path
-		raw := ctx.Request.URL.RawQuery
-		if raw != "" {
-			path = path + "?" + raw
-		}
-		ctx.Next()
-		end := time.Now()
-
-		l.Status = ctx.Writer.Status()
-		l.Method = ctx.Request.Method
-		l.Path = path
-		l.Body = ctx.Request.Body
-		l.Latency = end.Sub(start)
-		l.IP = ctx.ClientIP()
-
-		log.Infof(ctx, "| %3d |  %s | %13v | %15s | %s |", l.Status, l.Method, l.Path, l.Latency, l.IP)
+func Logger(c *gin.Context) {
+	l := &format{}
+	start := time.Now()
+	path := c.Request.URL.Path
+	raw := c.Request.URL.RawQuery
+	if raw != "" {
+		path = path + "?" + raw
 	}
+	c.Next()
+	end := time.Now()
+
+	l.Status = c.Writer.Status()
+	l.Method = c.Request.Method
+	l.Path = path
+	l.Body = c.Request.Body
+	l.Latency = end.Sub(start)
+	l.IP = c.ClientIP()
+
+	log.Infof(c.Request.Context(), "| %3d |  %s | %13v | %15s | %s |", l.Status, l.Method, l.Path, l.Latency, l.IP)
 }

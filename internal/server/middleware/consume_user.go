@@ -27,46 +27,44 @@ func isTokenExpiring(tokenData map[string]any) bool {
 }
 
 // ConsumeUser 处理当前用户
-func ConsumeUser() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("Authorization")
-		// Check format
-		// ie Bearer: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
-		b := "Bearer: "
-		if !strings.Contains(token, b) {
-			ctx.Next()
-			return
-		}
-		t := strings.Split(token, b)
-		if len(t) < 2 {
-			ctx.Next()
-			return
-		}
-		// 解密令牌
-		tokenData, err := jwt.DecodeToken(signingKey, t[1])
-		if err != nil {
-			exception := &resp.Exception{
-				Status:  http.StatusForbidden,
-				Code:    ecode.AccessDenied,
-				Message: err.Error(),
-			}
-			resp.Fail(ctx.Writer, exception)
-			return
-		}
-
-		// 设置当前用户 ID
-		userID := tokenData["user_id"].(string)
-		ctx.Set("uid", userID)
-
-		// 检查令牌是否即将过期并刷新令牌
-		if isTokenExpiring(tokenData) {
-			newToken, err := refreshToken(t[1])
-			if err == nil {
-				ctx.Header("Authorization", "Bearer "+newToken)
-			}
-		}
-
-		ctx.Next()
-
+func ConsumeUser(c *gin.Context) {
+	token := c.Request.Header.Get("Authorization")
+	// Check format
+	// ie Bearer: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+	b := "Bearer: "
+	if !strings.Contains(token, b) {
+		c.Next()
+		return
 	}
+	t := strings.Split(token, b)
+	if len(t) < 2 {
+		c.Next()
+		return
+	}
+	// 解密令牌
+	tokenData, err := jwt.DecodeToken(signingKey, t[1])
+	if err != nil {
+		exception := &resp.Exception{
+			Status:  http.StatusForbidden,
+			Code:    ecode.AccessDenied,
+			Message: err.Error(),
+		}
+		resp.Fail(c.Writer, exception)
+		return
+	}
+
+	// 设置当前用户 ID
+	userID := tokenData["user_id"].(string)
+	c.Set("uid", userID)
+
+	// 检查令牌是否即将过期并刷新令牌
+	if isTokenExpiring(tokenData) {
+		newToken, err := refreshToken(t[1])
+		if err == nil {
+			c.Header("Authorization", "Bearer "+newToken)
+		}
+	}
+
+	c.Next()
+
 }
