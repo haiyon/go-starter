@@ -3,10 +3,11 @@ package repository
 import (
 	"context"
 	"go-starter/internal/data"
-	"go-starter/internal/data/cache"
 	"go-starter/internal/data/ent"
 	"go-starter/internal/data/ent/sample"
 	"go-starter/internal/data/structs"
+	"go-starter/pkg/cache"
+	"go-starter/pkg/log"
 	"go-starter/pkg/validator"
 
 	"github.com/redis/go-redis/v9"
@@ -28,7 +29,7 @@ type sampleRepo struct {
 func NewSample(d *data.Data) Sample {
 	entClient := d.GetEntClient()
 	redisClient := d.GetRedis()
-	cacheInstance := cache.NewCache[ent.Sample](redisClient, cache.Key("sample"))
+	cacheInstance := cache.NewCache[ent.Sample](redisClient, cache.Key("sc_sample"), false)
 	return &sampleRepo{ec: entClient, rc: redisClient, c: cacheInstance}
 }
 
@@ -47,7 +48,10 @@ func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, 
 			return nil, err
 		}
 		// set the cache.
-		r.c.Set(ctx, row, cf)
+		err := r.c.Set(ctx, cf, row)
+		if err != nil {
+			log.Errorf(nil, "failed to set cache: %v", err)
+		}
 	}
 	return row, err
 }
