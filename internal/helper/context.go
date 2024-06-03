@@ -3,6 +3,7 @@ package helper
 import (
 	"context"
 	"go-starter/internal/config"
+	"go-starter/pkg/nanoid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,14 +24,30 @@ func GetGinContext(ctx context.Context) (*gin.Context, bool) {
 	return c, ok
 }
 
-// GetConfig gets config from gin.Context or context.Context.
-func GetConfig(ctx context.Context) *config.Config {
+// GetValue retrieves a value from the context.
+func GetValue(ctx context.Context, key string) any {
 	if c, ok := GetGinContext(ctx); ok {
-		if conf, exists := c.Get("config"); exists {
-			return conf.(*config.Config)
+		if val, exists := c.Get(key); exists {
+			return val
 		}
 	}
-	if conf, exists := ctx.Value("config").(*config.Config); exists {
+	if val, exists := ctx.Value(key).(any); exists {
+		return val
+	}
+	return nil
+}
+
+// SetValue sets a value to the context.
+func SetValue(ctx context.Context, key string, val any) context.Context {
+	if c, ok := GetGinContext(ctx); ok {
+		c.Set(key, val)
+	}
+	return context.WithValue(ctx, key, val)
+}
+
+// GetConfig gets config from gin.Context or context.Context.
+func GetConfig(ctx context.Context) *config.Config {
+	if conf, ok := GetValue(ctx, "config").(*config.Config); ok {
 		return conf
 	}
 	// Context does not contain config, load it from config.
@@ -39,8 +56,23 @@ func GetConfig(ctx context.Context) *config.Config {
 
 // SetConfig sets config to gin.Context or context.Context.
 func SetConfig(ctx context.Context, conf *config.Config) context.Context {
-	if c, ok := GetGinContext(ctx); ok {
-		c.Set("config", conf)
+	return SetValue(ctx, "config", conf)
+}
+
+// GetTraceID gets trace id from gin.Context
+func GetTraceID(ctx context.Context) string {
+	if traceID, ok := GetValue(ctx, "trace_id").(string); ok {
+		return traceID
 	}
-	return context.WithValue(ctx, "config", conf)
+	return ""
+}
+
+// SetTraceID sets trace id to gin.Context
+func SetTraceID(ctx context.Context, traceID string) {
+	SetValue(ctx, "trace_id", traceID)
+}
+
+// NewTraceID creates a new trace ID.
+func NewTraceID() string {
+	return nanoid.Must(16)
 }

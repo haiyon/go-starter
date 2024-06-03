@@ -2,23 +2,23 @@ package middleware
 
 import (
 	"go-starter/pkg/ecode"
-	"go-starter/pkg/resp"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Authorized is a middleware for verifying the existence of a user.
+// Authorized middleware verifies the existence of a user.
 func Authorized(c *gin.Context) {
-	if _, exists := c.Get("uid"); !exists {
-		exception := &resp.Exception{
-			Status:  http.StatusUnauthorized,
-			Code:    ecode.Unauthorized,
-			Message: ecode.Text(ecode.Unauthorized),
-		}
-		resp.Fail(c.Writer, exception)
-		c.Abort()
+	// Retrieve user ID from the context, or return unauthorized error
+	if userID, exists := c.Get("uid"); !exists || userID == "" {
+		// Respond with unauthorized error
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    ecode.Unauthorized,
+			"message": ecode.Text(ecode.Unauthorized),
+		})
 		return
 	}
+
+	// Continue to the next handler
 	c.Next()
 }
