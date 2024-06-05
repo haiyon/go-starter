@@ -8,6 +8,7 @@ import (
 	"go-starter/internal/data/ent/migrate"
 	"go-starter/pkg/log"
 
+	"github.com/meilisearch/meilisearch-go"
 	"github.com/redis/go-redis/v9"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -23,22 +24,25 @@ var (
 	db  *sql.DB
 	ec  *ent.Client
 	rc  *redis.Client
+	ms  *meilisearch.Client
 )
 
 // Data .
 type Data struct {
+	db *sql.DB
 	ec *ent.Client
 	rc *redis.Client
-	db *sql.DB
+	ms *meilisearch.Client
 }
 
 // New creates a new Database Connection.
 func New(conf *config.Data) (*Data, func(), error) {
 	ec, db := newClient(&conf.Database)
 	d := &Data{
+		db: db,
 		ec: ec,
 		rc: newRedis(&conf.Redis),
-		db: db,
+		// ms: newMeilisearch(&conf.Meilisearch),
 	}
 
 	cleanup := func() {
@@ -124,6 +128,31 @@ func (d *Data) GetEntClient() *ent.Client {
 // GetDB returns the database
 func (d *Data) GetDB() *sql.DB {
 	return d.db
+}
+
+// newMeilisearch creates a new Meilisearch client.
+func newMeilisearch(conf *config.Meilisearch) *meilisearch.Client {
+	if conf == nil || conf.Host == "" {
+		log.Fatalf(nil, "Meilisearch configuration cannot be nil")
+	}
+
+	ms = meilisearch.NewClient(meilisearch.ClientConfig{
+		Host:   conf.Host,
+		APIKey: conf.APIKey,
+	})
+
+	// Check connection
+	_, err := ms.Health()
+	if err != nil {
+		log.Fatalf(nil, "Meilisearch connect error: %v", err)
+	}
+
+	return ms
+}
+
+// GetMeilisearch returns the Meilisearch client
+func (d *Data) GetMeilisearch() *meilisearch.Client {
+	return d.ms
 }
 
 // Close .

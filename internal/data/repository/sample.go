@@ -10,6 +10,7 @@ import (
 	"go-starter/pkg/log"
 	"go-starter/pkg/validator"
 
+	"github.com/meilisearch/meilisearch-go"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -22,6 +23,7 @@ type Sample interface {
 type sampleRepo struct {
 	ec *ent.Client
 	rc *redis.Client
+	ms *meilisearch.Client
 	c  *cache.Cache[ent.Sample]
 }
 
@@ -29,8 +31,9 @@ type sampleRepo struct {
 func NewSample(d *data.Data) Sample {
 	entClient := d.GetEntClient()
 	redisClient := d.GetRedis()
+	meiliClient := d.GetMeilisearch()
 	cacheInstance := cache.NewCache[ent.Sample](redisClient, cache.Key("sc_sample"), false)
-	return &sampleRepo{ec: entClient, rc: redisClient, c: cacheInstance}
+	return &sampleRepo{ec: entClient, rc: redisClient, ms: meiliClient, c: cacheInstance}
 }
 
 func (r *sampleRepo) Hello(ctx context.Context, p structs.Sample) (*ent.Sample, error) {
@@ -133,4 +136,30 @@ func (r *sampleRepo) getSample(ctx context.Context, p *structs.FindSample) (*ent
 		return nil, err
 	}
 	return row, nil
+}
+
+// CreateIndex creates a new index in Meilisearch.
+func (r *sampleRepo) CreateIndex(ctx context.Context, sample *ent.Sample) error {
+	// Get Meilisearch client
+	ms := r.ms
+
+	// Create Meilisearch index
+	index := ms.Index("samples")
+
+	// Define the document to index
+	doc := map[string]any{
+		"id":      sample.ID,
+		"name":    sample.Name,
+		"content": sample.Content,
+		// Add other fields as needed
+	}
+
+	// Index the document
+	_, err := index.AddDocuments([]map[string]interface{}{doc})
+	if err != nil {
+		log.Errorf(nil, "sampleRepo.CreateIndex error: %v\n", err)
+		return err
+	}
+
+	return nil
 }
