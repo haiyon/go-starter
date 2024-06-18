@@ -23,7 +23,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
-	github.com/vektah/gqlparser/v2 v2.5.12
+	github.com/vektah/gqlparser/v2 v2.5.15
 	golang.org/x/crypto v0.23.0
 	google.golang.org/protobuf v1.34.1
 )
